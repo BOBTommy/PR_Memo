@@ -1,0 +1,75 @@
+11월 1일 멘토프로젝트
+
+1. IPTable
+   - Packet 처리기 in Linux
+		In window, use ipsec
+		In Linux, IP table
+		In bsd, pf / ipfw
+	- Study linux ip route 2
+		can do linux in working with all packet
+		간단한 패킷 툴은 iptable
+		
+		
+	GIF 설명 
+	1. http://www.linuxhomenetworking.com/wiki/images/f/f0/Iptables.gif
+	2. http://www.sysresccd.org/images/dport-routing-02.png
+	Network - PC or Network.
+	
+	본인이 Linux 서버에서 패킷을 보내면 
+		1.mangle table(패킷 수정,라우팅 prerouting,postrouting)
+		2.nat Table(nat 기능 담당,prerouting,postrouting) 
+		3.routing(iptable 2 에서 제어 가능)
+		4.Forward 테이블 (Network 관련)
+	
+	In server input packet.
+		input
+		output
+	
+	2번째 gif
+	Brower에서 URL 을 입력
+	-> 내부 소켓을 open (for 3-way handshaking) -> ethernet
+	Pre routing(No rule, 적용안됨) -> routing decision -> Input -> Localprocess(브라우져)
+	-> Output -> ethernet
+	
+	IPtable -> Packet filtering 
+		순차적으로 처음부터 끝까지 처리하는 테이블들임.
+		무차별 BruteForcing 을 통해 들어오면 Input table 
+		(ex. tcp, 22port from china -> reject then 로컬테이블로 넘어오지 않음.)
+		
+		
+	실습
+	>iptables (in root)
+	>iptables -L // List Network Table
+		INPUT -> 나에게 들어오는 packet 제어
+		OUTPUT -> 나에게서 나가는 packet 제어
+		FORWARD -> 내꺼 아닌 패킷 제어
+		
+	>iptables -A INPUT -s ip -j REJECT // 해당 ip를 받지 않음
+		Source, destination 을 가지고 간단히 packet을 제어 할 수 있음
+	
+	>iptables -D INPUT 1
+		다시 Access
+		
+	Chain을 추가 할 수 있음 (--apend option)
+	 일종의 Pattern이 있는 Filtering 작업
+	 
+	Our Proejct is FORWARD.
+	
+	
+	http://freecode.com/articles/configuring-a-transparent-proxywebcache-in-a-bridge-using-squid-and-ebtables
+	
+	ebtables -t broute -A BROUTING -p IPv4 --ip-protocol 6 \
+        --ip-destination-port 80 -j redirect --redirect-target ACCEPT
+	iptables -t nat -A PREROUTING -i br0 -p tcp --dport 80 \
+        -j REDIRECT --to-port 3128
+		
+	80Port에 들어오는 것을 내부로 Routing Port는 3128 -> daemon을 작성
+	-> 원하는 대로 조작 가능 (Promiscous에 상관없음)
+	
+	
+GeoIP
+	-> MaxMind
+	우리의 모든 IP를 DB화
+	geoiplookup ip -> 해당 ip에 대한 DATA 출력
+
+	
